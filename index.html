@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Adventures Trait Reroller By Dve</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        text-align: center;
+        padding: 20px;
+        background-color: #000000;
+        color: white;
+      }
+
+      .trait-roller {
+        margin: 20px auto;
+        padding: 20px;
+        width: 350px;
+        background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+        border-radius: 12px;
+        border: 1px solid #333;
+      }
+
+      .trait-chances-btn {
+        background: linear-gradient(180deg, #ffd700 0%, #ffb700 100%);
+        color: black;
+        padding: 5px 15px;
+        border: none;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 13px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        margin-bottom: 10px;
+      }
+
+      .trait-display {
+        position: relative;
+        background: #0a0a0a;
+        border: 2px solid #333;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        height: 120px;
+      }
+
+      .trait-name {
+        font-size: 28px;
+        font-weight: bold;
+        margin: 0;
+        text-align: left;
+      }
+
+      .trait-info {
+        color: #999;
+        font-size: 11px;
+        margin-top: 5px;
+        text-align: left;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 15px;
+      }
+
+      .roll-button {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      .roll-button:active {
+        transform: scale(0.95);
+      }
+
+      @keyframes rollAnimation {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+
+      .trait-name.rolling {
+        animation: rollAnimation 0.3s ease;
+      }
+
+      .robux-roller {
+        background: linear-gradient(180deg, #4cd137 0%, #44bd32 100%);
+        color: white;
+      }
+
+      .reroll {
+        background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%);
+        color: white;
+      }
+
+      .reroll-token {
+        background: linear-gradient(180deg, #ffa502 0%, #ff7f50 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding-right: 15px;
+      }
+
+      .auto-roll {
+        background: linear-gradient(180deg, #8e44ad, #9b59b6);
+        color: white;
+      }
+
+      .auto-roll.active {
+        background: linear-gradient(180deg, #c0392b, #e74c3c);
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1); }
+      }
+
+      .trait-image {
+        width: 30px;
+        height: 30px;
+        object-fit: contain;
+        position: absolute;
+        top: 25px;
+        left: 0;
+        border-radius: 0 4px 4px 0;
+        padding: 2px;
+        z-index: 1;
+      }
+
+      .trait-counter {
+        background: rgba(0,0,0,0.7);
+        border-radius: 8px;
+        padding: 3px 8px;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 12px;
+        color: #ff4757;
+        border: 1px solid #333;
+      }
+
+      .trait-arrow {
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ff4757;
+        font-size: 24px;
+      }
+
+      .trait-level {
+        color: #ffd700;
+        font-size: 18px;
+        margin-left: 5px;
+      }
+
+      .trait-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+      }
+
+      .trait-image-container {
+        background: #1e1e1e;
+        border-radius: 8px;
+        padding: 5px;
+        border: 1px solid #333;
+      }
+
+      @keyframes glow {
+        0% { box-shadow: 0 0 5px #ffd700; }
+        50% { box-shadow: 0 0 15px #ffd700; }
+        100% { box-shadow: 0 0 5px #ffd700; }
+      }
+
+      .golden-trait {
+        animation: glow 2s infinite;
+      }
+
+      .unit-frame {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #1a1a1a;
+        margin-right: 10px;
+      }
+
+      .unit-container {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 15px;
+      }
+
+      .unit-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+      }
+
+      .unit-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .unit-level {
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 0 0 8px 0;
+        font-size: 12px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        z-index: 2;
+      }
+
+      .unit-level img {
+        width: 12px;
+        height: 12px;
+      }
+
+      .unit-name {
+        color: #ffd700;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+        text-align: left;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      }
+
+      .unit-cost {
+        color: #ffd700;
+        font-size: 14px;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .unit-cost img {
+        width: 16px;
+        height: 16px;
+      }
+
+      .roll-counter {
+        color: #999;
+        font-size: 12px;
+        margin-top: 5px;
+      }
+
+      .trait-chances-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.7);
+        background: rgba(0,0,0,0.95);
+        border: 2px solid #333;
+        border-radius: 12px;
+        padding: 20px;
+        z-index: 1000;
+        max-height: 80vh;
+        overflow-y: auto;
+        min-width: 300px;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .trait-chances-modal.active {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .modal-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 999;
+      }
+
+      .modal-backdrop.active {
+        opacity: 1;
+      }
+
+      .trait-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .trait-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-bottom: 1px solid #333;
+      }
+
+      .trait-item img {
+        width: 30px;
+        height: 30px;
+      }
+
+      .trait-item-name {
+        flex: 1;
+        text-align: left;
+        font-weight: bold;
+      }
+
+      .trait-item-chance {
+        color: #ffd700;
+      }
+
+      .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      .unique-roll {
+        background: linear-gradient(180deg, #e74c3c, #c0392b);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="trait-roller">
+
+        <button class="trait-chances-btn">
+          Trait Chances
+        </button>
+
+        <div class="unit-container">
+          <div class="unit-frame">
+            <img src="https://www.mrguider.org/wp-content/uploads/2024/02/Captain-Commander.jpg" class="unit-image" alt="Unit" />
+            <img id="trait-img" src="" class="trait-image" />
+          </div>
+          <div class="unit-info">
+            <p id="trait" class="trait-name">No Trait</p>
+            <div class="roll-counter">Rolls: <span id="rollCounter">0</span></div>
+            <div class="unit-cost">
+            </div>
+          </div>
+        </div>
+
+        <div class="trait-display">
+          <div class="trait-content">
+            <h3>Anime Adventures Trait Reroller by Dve</h1>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button id="rerollBtn" class="roll-button reroll" onclick="rollTrait()">
+            Reroll
+          </button>
+          <button id="autoRollBtn" class="roll-button auto-roll" onclick="toggleAutoRoll()">
+            Auto Roll
+          </button>
+          <button id="rollToUniqueBtn" class="roll-button unique-roll" onclick="rollToUnique()">
+            Roll to Unique
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <audio id="theme" autoplay loop src="Anime Adventures Lobby Music.mp3"></audio>
+    <audio id="money" src="MONEY SOUND EFFECT !!.mp3"></audio>
+    <audio id="rerollSound" src="reroll.mp3"></audio>
+
+    <div class="trait-chances-modal" id="traitModal">
+      <button class="close-modal" onclick="closeTraitModal()">×</button>
+      <h3>Trait Chances</h3>
+      <ul class="trait-list" id="traitList"></ul>
+    </div>
+
+    <script>
+      const traits = [
+        {
+          name: "Superior",
+          chance: 24.97,
+          subTraits: ["Superior I", "Superior II", "Superior III"],
+          color: "#0B5FE0",
+          image: "Trait_Superior.webp",
+        },
+        {
+          name: "Nimble",
+          chance: 24.98,
+          subTraits: ["Nimble I", "Nimble II", "Nimble III"],
+          color: "#0B5FE0",
+          image: "Trait_Nimble.webp",
+        },
+        {
+          name: "Range",
+          chance: 24.98,
+          subTraits: ["Range I", "Range II", "Range III"],
+          color: "#0B5FE0",
+          image: "Trait_Range (1).webp",
+        },
+        {
+          name: "Adept",
+          chance: 9.99,
+          color: "#CC9D2C",
+          image: "Trait_Adept.webp",
+        },
+        {
+          name: "Culling",
+          chance: 5,
+          color: "#FAE745",
+          image: "Trait_Culling.webp",
+        },
+        {
+          name: "Sniper",
+          chance: 2.5,
+          color: "#FAE745",
+          image: "Trait_Sniper.webp",
+        },
+        {
+          name: "Godspeed",
+          chance: 1,
+          color: "#FAE745",
+          image: "Trait_Godspeed.webp",
+        },
+        {
+          name: "Reaper",
+          chance: 0.8,
+          color: "#EC0D07",
+          image: "Trait_Reaper.webp",
+        },
+        {
+          name: "Celestial",
+          chance: 0.36,
+          color: "#EC0D07",
+          image: "Trait_Celestial.webp",
+        },
+        {
+          name: "Divine",
+          chance: 0.2,
+          color: "#EC0D07",
+          image: "Trait_Divine.webp",
+        },
+        {
+          name: "Golden",
+          chance: 0.15,
+          color: "#EC0D07",
+          image: "Trait_Golden.webp",
+        },
+        {
+          name: "Unique",
+          chance: 0.1,
+          color: "#EC0D07",
+          image: "Trait_Unique (1).webp",
+        },
+      ];
+
+      function createConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const confetti = [];
+        const colors = ['#ffd700', '#ffa500', '#ff69b4', '#00ff00', '#4169e1'];
+
+        class ConfettiPiece {
+          constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = -10;
+            this.size = Math.random() * 10 + 5;
+            this.color = colors[Math.floor(Math.random() * colors.length)];
+            this.speed = Math.random() * 3 + 2;
+            this.angle = Math.random() * Math.PI * 2;
+            this.rotationSpeed = (Math.random() - 0.5) * 0.2;
+          }
+
+          update() {
+            this.y += this.speed;
+            this.x += Math.sin(this.angle) * 2;
+            this.angle += this.rotationSpeed;
+
+            if (this.y > canvas.height) {
+              this.y = -10;
+              this.x = Math.random() * canvas.width;
+            }
+          }
+
+          draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angle);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+            ctx.restore();
+          }
+        }
+
+        for (let i = 0; i < 100; i++) {
+          confetti.push(new ConfettiPiece());
+        }
+
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          confetti.forEach(piece => {
+            piece.update();
+            piece.draw();
+          });
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+      }
+
+      function showUniqueNotification() {
+        const notification = document.querySelector('.unique-notification');
+        notification.style.display = 'block';
+        createConfetti();
+        
+        setTimeout(() => {
+          notification.style.display = 'none';
+        }, 3000);
+      }
+
+      let isAutoRolling = false;
+      let autoRollInterval;
+      let rollCount = 0;
+
+      function toggleAutoRoll() {
+        const autoRollBtn = document.getElementById('autoRollBtn');
+        isAutoRolling = !isAutoRolling;
+        
+        if (isAutoRolling) {
+          autoRollBtn.classList.add('active');
+          autoRollBtn.textContent = 'Stop Auto';
+          rollCount = 0;
+          autoRollInterval = setInterval(autoRoll, 500);
+        } else {
+          stopAutoRoll();
+        }
+      }
+
+      function stopAutoRoll() {
+        const autoRollBtn = document.getElementById('autoRollBtn');
+        clearInterval(autoRollInterval);
+        isAutoRolling = false;
+        autoRollBtn.classList.remove('active');
+        autoRollBtn.textContent = 'Auto Roll';
+      }
+
+      function autoRoll() {
+        rollCount++;
+        const trait = getRandomTrait();
+        
+        const traitDisplay = document.getElementById("trait");
+        traitDisplay.textContent = trait.name;
+        traitDisplay.style.color = trait.color;
+
+        // Cập nhật ảnh trait
+        const traitImg = document.getElementById("trait-img");
+        traitImg.src = trait.image;
+
+        // Phát âm thanh
+        var sound = document.getElementById("rerollSound");
+        sound.currentTime = 0;
+        sound.play();
+
+        if (trait.name === "Unique") {
+          stopAutoRoll();
+          showUniqueNotification();
+          alert(`Đã roll được Unique sau ${rollCount} lần!`);
+        }
+      }
+
+      let manualRollCount = 0;
+
+      function rollTrait() {
+        if (isAutoRolling) return;
+        
+        manualRollCount++;
+        document.getElementById("rollCounter").textContent = manualRollCount;
+        
+        // Add rolling animation
+        const traitName = document.getElementById("trait");
+        traitName.classList.add('rolling');
+        
+        // Remove animation class after it completes
+        setTimeout(() => {
+          traitName.classList.remove('rolling');
+        }, 300);
+        
+        var sound = document.getElementById("rerollSound");
+        sound.play();
+
+        const randomTrait = getRandomTrait();
+
+        const traitDisplay = document.getElementById("trait");
+        traitDisplay.textContent = randomTrait.name;
+        traitDisplay.style.color = randomTrait.color;
+
+        // Cập nhật ảnh trait
+        const traitImg = document.getElementById("trait-img");
+        traitImg.src = randomTrait.image;
+
+        if (randomTrait.name === "Unique") {
+          showUniqueNotification();
+        }
+      }
+
+      function getRandomTrait() {
+        const totalChance = traits.reduce(
+          (sum, trait) => sum + trait.chance,
+          0
+        );
+        const randomNum = Math.random() * totalChance;
+        let chanceSum = 0;
+
+        for (let trait of traits) {
+          chanceSum += trait.chance;
+          if (randomNum <= chanceSum) {
+            if (trait.subTraits) {
+              const subTraitIndex = Math.floor(
+                Math.random() * trait.subTraits.length
+              );
+              trait.name = trait.subTraits[subTraitIndex];
+            }
+            return trait;
+          }
+        }
+      }
+
+      document
+        .getElementById("rerollBtn")
+        .addEventListener("click", function () {
+          var rerolledText = document.getElementById("rerolledTrait");
+          var button = document.getElementById("rerollBtn");
+
+          rerolledText.style.display = "block";
+
+          button.classList.add("clicked");
+
+          setTimeout(function () {
+            rerolledText.style.display = "none";
+          }, 1000);
+
+          setTimeout(function () {
+            button.classList.remove("clicked");
+          }, 300);
+        });
+
+      function broke() {
+        var sound = document.getElementById("money");
+        sound.play();
+        alert("Broke boy");
+      }
+
+      var sound = document.getElementById("theme");
+      sound.volume = 0.1;
+
+      document.querySelector('.trait-chances-btn').addEventListener('click', showTraitModal);
+
+      function showTraitModal() {
+        const modal = document.getElementById('traitModal');
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop';
+        document.body.appendChild(backdrop);
+        
+        const traitList = document.getElementById('traitList');
+        traitList.innerHTML = '';
+        
+        traits.forEach(trait => {
+          const li = document.createElement('li');
+          li.className = 'trait-item';
+          li.innerHTML = `
+            <img src="${trait.image}" alt="${trait.name}">
+            <span class="trait-item-name" style="color: ${trait.color}">${trait.name}</span>
+            <span class="trait-item-chance">${trait.chance}%</span>
+          `;
+          traitList.appendChild(li);
+        });
+        
+        modal.style.display = 'block';
+        backdrop.style.display = 'block';
+        
+        setTimeout(() => {
+          modal.classList.add('active');
+          backdrop.classList.add('active');
+        }, 10);
+      }
+
+      function closeTraitModal() {
+        const modal = document.getElementById('traitModal');
+        const backdrop = document.querySelector('.modal-backdrop');
+        
+        modal.classList.remove('active');
+        backdrop.classList.remove('active');
+        
+        setTimeout(() => {
+          modal.style.display = 'none';
+          backdrop.remove();
+        }, 300);
+      }
+
+      // Click outside to close
+      window.onclick = function(event) {
+        const modal = document.getElementById('traitModal');
+        if (event.target == modal) {
+          modal.style.display = 'none';
+        }
+      }
+
+      function rollToUnique() {
+        let count = 0;
+        let trait;
+        
+        do {
+          count++;
+          trait = getRandomTrait();
+        } while (trait.name !== "Unique");
+        
+        // Cập nhật UI
+        const traitDisplay = document.getElementById("trait");
+        traitDisplay.textContent = trait.name;
+        traitDisplay.style.color = trait.color;
+        
+        // Cập nhật ảnh trait
+        const traitImg = document.getElementById("trait-img");
+        traitImg.src = trait.image;
+        
+        // Cập nhật số lần roll
+        document.getElementById("rollCounter").textContent = count;
+        
+        // Hiệu ứng
+        showUniqueNotification();
+        alert(`Đã roll được Unique sau ${count} lần!`);
+      }
+    </script>
+  </body>
+</html>
